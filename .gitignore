@@ -1,0 +1,2 @@
+//ignorar modulos generados por node
+node_modules
