@@ -10,6 +10,7 @@ export const getCitas = async (req, res) => {
                 Citas.id_cita,
                 Pacientes.nombre AS nombre_paciente,
                 Pacientes.apellido AS apellido_paciente,
+                Pacientes.tarifa,  -- Agregamos la tarifa del paciente
                 Psicologos.nombre AS nombre_psicologo,
                 Psicologos.apellido AS apellido_psicologo,
                 Citas.fecha_cita,
@@ -25,16 +26,18 @@ export const getCitas = async (req, res) => {
             WHERE 
                 Citas.id_psicologo = ?
         `, [userId]);
+
         rows.forEach((cita) => {
-            cita.fecha_cita = format(new Date (cita.fecha_cita), "dd/MM/yyyy");
-            //formato de 24 horas
+            cita.fecha_cita = format(new Date(cita.fecha_cita), "dd/MM/yyyy");
             cita.hora_cita = format(parse(cita.hora_cita, "HH:mm:ss", new Date()), "HH:mm");
         });
-        res.status(200).        json(rows);
+
+        res.status(200).json(rows);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 //obtener una cita por id
 export const getCitaById = async (req, res) => {
@@ -45,6 +48,7 @@ export const getCitaById = async (req, res) => {
                 Citas.id_cita,
                 Pacientes.nombre AS nombre_paciente,
                 Pacientes.apellido AS apellido_paciente,
+                Pacientes.tarifa,
                 Psicologos.nombre AS nombre_psicologo,
                 Psicologos.apellido AS apellido_psicologo,
                 Citas.fecha_cita,

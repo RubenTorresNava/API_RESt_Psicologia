@@ -8,13 +8,7 @@ export const getPacientes =async (req, res) => {
     try {
         const [rows] = await connection.query(`
             SELECT
-                id_paciente,
-                nombre,
-                apellido,
-                fecha_nacimiento,
-                telefono,
-                correo_electronico,
-                direccion
+                *
             FROM 
                 Pacientes
             WHERE 
@@ -22,6 +16,7 @@ export const getPacientes =async (req, res) => {
         `, [userId]);
         rows.forEach((paciente) => {
             paciente.fecha_nacimiento = format(new Date (paciente.fecha_nacimiento), "dd/MM/yyyy");
+            paciente.fecha_registro = format(new Date (paciente.fecha_registro), "dd/MM/yyyy");
         });
         res.status(200).json(rows);
     } catch (error) {
@@ -35,13 +30,7 @@ export const getPacienteById = async (req, res) => {
         const { id } = req.params;
         const [rows] = await connection.query(`
             SELECT
-                id_paciente,
-                nombre,
-                apellido,
-                fecha_nacimiento,
-                telefono,
-                correo_electronico,
-                direccion
+                *
             FROM 
                 Pacientes
             WHERE 
@@ -49,6 +38,7 @@ export const getPacienteById = async (req, res) => {
         `, [id]);
         rows.forEach((paciente) => {
             paciente.fecha_nacimiento = format(new Date (paciente.fecha_nacimiento), "dd/MM/yyyy");
+            paciente.fecha_registro = format(new Date (paciente.fecha_registro), "dd/MM/yyyy");
         });
         res.status(200).json(rows[0]);
     } catch (error) {
@@ -58,17 +48,19 @@ export const getPacienteById = async (req, res) => {
 
 //crear un paciente con fecha de nacimiento en formato yyyy-mm-dd
 export const createPaciente = async (req, res) => {
-    const { nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion } = req.body;
+    const { nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, fecha_registro } = req.body;
     const userId = req.userId;
     const parcedDate = parse(fecha_nacimiento, "dd/MM/yyyy", new Date());
     const formatedDate = format(parcedDate, "yyyy-MM-dd");
+    const parceDateRegistro = parse(fecha_registro, "dd/MM/yyyy", new Date());
+    const formateRegistro = format(parceDateRegistro, "yyyy-MM-dd");
     try {
         await connection.query(`
             INSERT INTO Pacientes
-                (nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, id_psicologo)
+                (nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, fecha_registro, id_psicologo)
             VALUES
-                (?, ?, ?, ?, ?, ?, ?)
-        `, [nombre, apellido, formatedDate, telefono, correo_electronico, direccion, userId]);
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `, [nombre, apellido, formatedDate, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, formateRegistro, userId]);
         res.status(201).json({ message: "Paciente creado" });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -78,9 +70,11 @@ export const createPaciente = async (req, res) => {
 //actualizar un paciente con fecha de nacimiento en formato yyyy-mm-dd
 export const updatePaciente = async (req, res) => {
     const { id } = req.params;
-    const { nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion } = req.body;
+    const { nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion } = req.body;
     const parcedDate = parse(fecha_nacimiento, "dd/MM/yyyy", new Date());
     const formatedDate = format(parcedDate, "yyyy-MM-dd");
+    const parceDateRegistro = parse(fecha_registro, "dd/MM/yyyy", new Date());
+    const formateRegistro = format(parceDateRegistro, "yyyy-MM-dd");
     try {
         await connection.query(`
             UPDATE Pacientes
@@ -90,7 +84,13 @@ export const updatePaciente = async (req, res) => {
                 fecha_nacimiento = ?,
                 telefono = ?,
                 correo_electronico = ?,
-                direccion = ?
+                direccion = ?,
+                tarifa = ?,
+                nombre_emergencia = ?,
+                contacto_emergencia = ?,
+                estado_civil = ?,
+                ocupacion = ?,
+
             WHERE
                 id_paciente = ?
         `, [nombre, apellido, formatedDate, telefono, correo_electronico, direccion, id]);
