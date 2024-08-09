@@ -1,6 +1,6 @@
-import { ro } from "date-fns/locale";
 import { connection } from "../db/conection.js";
 import { format, parse } from "date-fns";
+import jwt from 'jsonwebtoken';
 
 //obtener todos los pacientes
 export const getPacientes =async (req, res) => {
@@ -109,6 +109,37 @@ export const deletePaciente = async (req, res) => {
             WHERE id_paciente = ?
         `, [id]);
         res.status(200).json({ message: "Paciente eliminado" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//login paciente
+export const loginPaciente = async (req, res) => {
+    const { usuario, contrasena } = req.body;
+    const comparePassword = (inputPassword, storedPassword) => {
+        return inputPassword === storedPassword;
+    }
+
+    try {
+        const [rows] = await connection.query(
+            'SELECT * FROM Pacientes WHERE usuario = ?',
+            [usuario]
+        );
+
+        const paciente = rows[0];
+
+        if (!paciente || !comparePassword(contrasena, paciente.contrasena)) {
+            return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
+        }
+
+        const token = jwt.sign(
+            { id: paciente.id_paciente, role: 'paciente' },
+            'secretkey',
+            { expiresIn: '1h' }
+        );
+
+        res.json({ message:`Bienvenido Paciente ${usuario}` ,token });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

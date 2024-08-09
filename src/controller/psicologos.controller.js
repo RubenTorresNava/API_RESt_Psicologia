@@ -18,34 +18,33 @@ export const createPsicologo = async (req, res) => {
         
 
 export const loginPsicologo = async (req, res) => {
-    try {
-        const { usuario, contrasena } = req.body;
+    const { usuario, contrasena } = req.body;
+    const comparePassword = (inputPassword, storedPassword) => {
+        return inputPassword === storedPassword;
+    };
+    
 
-        // Obtener el psicólogo por nombre de usuario
+    try {
         const [rows] = await connection.query(
-            "SELECT * FROM Psicologos WHERE usuario = ?",
+            'SELECT * FROM Psicologos WHERE usuario = ?',
             [usuario]
         );
 
-        if (rows.length > 0) {
-            const psicologo = rows[0];
+        const psicologo = rows[0];
 
-            // Comparar la contraseña proporcionada con la almacenada
-            if (contrasena === psicologo.contrasena) {
-                // Generar el token JWT
-                const token = jwt.sign({ id_psicologo: psicologo.id_psicologo }, 'secretkey', {
-                    expiresIn: '1d' // Caduca en 1 día
-                });
-
-                res.status(200).json({ token });
-            } else {
-                res.status(401).json({ message: "Usuario o contraseña incorrectos" });
-            }
-        } else {
-            res.status(401).json({ message: "Usuario o contraseña incorrectos" });
+        if (!psicologo || !comparePassword(contrasena, psicologo.contrasena)) {
+            return res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
         }
+
+        const token = jwt.sign(
+            { id: psicologo.id_psicologo, role: 'psicologo' },
+            'secretkey',
+            { expiresIn: '1h' }
+        );
+
+        res.json({message: `Bienvenido psicologo ${usuario}`, token });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ message: error.message });
     }
 };
 

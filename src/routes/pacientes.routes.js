@@ -8,5 +8,6 @@ router .get("/api/pacientes/:id", pacientesCtrl.getPacienteById);
 router.post("/api/pacientes", tokenMiddleware, pacientesCtrl.createPaciente);
 router.put("/api/pacientes/:id", tokenMiddleware, pacientesCtrl.updatePaciente);
 router.delete("/api/pacientes/:id", tokenMiddleware, pacientesCtrl.deletePaciente);
+router.post("/api/pacientes/login", pacientesCtrl.loginPaciente);
 
 export default router;
