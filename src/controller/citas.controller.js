@@ -140,3 +140,53 @@ export const deleteCita = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+//confirmar una cita
+export const confirmCita = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await connection.query(`
+            UPDATE citas SET estado = 'confirmada' WHERE id_cita = ?
+        `, [id]);
+        res.status(200).json({ message: "Cita confirmada" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+//obtener todas las citas de un paciente con que tenga la sesion iniciada
+export const getCitasPacientes = async (req, res) => {
+    const userRole = req.userRole;
+    try {
+        const [rows] = await connection.query(`
+            SELECT
+                citas.id_cita,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                citas.fecha_cita,
+                citas.hora_cita,
+                citas.tipo_cita,
+                citas.estado
+            FROM 
+                citas
+            JOIN 
+                pacientes ON citas.id_paciente = pacientes.id_paciente
+            JOIN 
+                psicologos ON citas.id_psicologo = psicologos.id_psicologo
+            WHERE 
+                citas.id_paciente = ?
+        `, [userRole]);
+
+        rows.forEach((cita) => {
+            cita.fecha_cita = format(new Date(cita.fecha_cita), "dd/MM/yyyy");
+            cita.hora_cita = format(parse(cita.hora_cita, "HH:mm:ss", new Date()), "HH:mm");
+        });
+
+        res.status(200).json(rows);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+

@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 //obtener todos los pacientes
 export const getPacientes =async (req, res) => {
-    const userId = req.userId;
+    const userRole = req.userRole;
     try {
         const [rows] = await connection.query(`
             SELECT
@@ -13,7 +13,7 @@ export const getPacientes =async (req, res) => {
                 pacientes
             WHERE 
                 id_psicologo = ?
-        `, [userId]);
+        `, [userRole]);
         rows.forEach((paciente) => {
             paciente.fecha_nacimiento = format(new Date (paciente.fecha_nacimiento), "dd/MM/yyyy");
             paciente.fecha_registro = format(new Date (paciente.fecha_registro), "dd/MM/yyyy");
@@ -49,7 +49,7 @@ export const getPacienteById = async (req, res) => {
 //crear un paciente con fecha de nacimiento en formato yyyy-mm-dd
 export const createPaciente = async (req, res) => {
     const { nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, fecha_registro } = req.body;
-    const userId = req.userId;
+    const userRole = req.userRole;
     const parcedDate = parse(fecha_nacimiento, "dd/MM/yyyy", new Date());
     const formatedDate = format(parcedDate, "yyyy-MM-dd");
     const parceDateRegistro = parse(fecha_registro, "dd/MM/yyyy", new Date());
@@ -60,7 +60,7 @@ export const createPaciente = async (req, res) => {
                 (nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, fecha_registro, id_psicologo)
             VALUES
                 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [nombre, apellido, formatedDate, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, formateRegistro, userId]);
+        `, [nombre, apellido, formatedDate, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, formateRegistro, userRole]);
         res.status(201).json({ message: "Paciente creado" });
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -145,3 +145,6 @@ export const loginPaciente = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+
+
