@@ -22,7 +22,7 @@ export const getCitas = async (req, res) => {
             JOIN 
                 pacientes ON citas.id_paciente = pacientes.id_paciente
             JOIN 
-                Psicologos ON Citas.id_psicologo = Psicologos.id_psicologo
+            psicologos ON citas.id_psicologo = psicologos.id_psicologo
             WHERE 
                 citas.id_psicologo = ?
         `, [userId]);

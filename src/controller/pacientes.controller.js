@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 //obtener todos los pacientes
 export const getPacientes =async (req, res) => {
-    const userRole = req.userRole;
+    const userId = req.userId;
     try {
         const [rows] = await connection.query(`
             SELECT
@@ -13,14 +13,14 @@ export const getPacientes =async (req, res) => {
                 pacientes
             WHERE 
                 id_psicologo = ?
-        `, [userRole]);
+        `, [userId]);
         rows.forEach((paciente) => {
             paciente.fecha_nacimiento = format(new Date (paciente.fecha_nacimiento), "dd/MM/yyyy");
             paciente.fecha_registro = format(new Date (paciente.fecha_registro), "dd/MM/yyyy");
         });
-        res.status(200).json(rows);
+        return res.status(200).json(rows);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return  res.status(500).json({ message: error.message });
     }
 };
 
