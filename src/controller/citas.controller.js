@@ -69,9 +69,9 @@ export const getCitaById = async (req, res) => {
             //formato de 24 horas
             cita.hora_cita = format(parse(cita.hora_cita, "HH:mm:ss", new Date()), "HH:mm");
         });
-        res.status(200).json(rows);
+        return res.status(200).json(rows);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
@@ -156,7 +156,7 @@ export const confirmCita = async (req, res) => {
 
 //obtener todas las citas de un paciente con que tenga la sesion iniciada
 export const getCitasPacientes = async (req, res) => {
-    const userRole = req.userRole;
+    const userId = req.userId;
     try {
         const [rows] = await connection.query(`
             SELECT
@@ -177,16 +177,16 @@ export const getCitasPacientes = async (req, res) => {
                 psicologos ON citas.id_psicologo = psicologos.id_psicologo
             WHERE 
                 citas.id_paciente = ?
-        `, [userRole]);
+        `, [userId]);
 
         rows.forEach((cita) => {
             cita.fecha_cita = format(new Date(cita.fecha_cita), "dd/MM/yyyy");
             cita.hora_cita = format(parse(cita.hora_cita, "HH:mm:ss", new Date()), "HH:mm");
         });
 
-        res.status(200).json(rows);
+        return res.status(200).json(rows);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
