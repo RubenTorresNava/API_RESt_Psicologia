@@ -7,21 +7,21 @@ export const getDiagnosticos = async (req, res) => {
     try {
         const [rows] = await connection.query(`
             SELECT
-                Diagnosticos.id_diagnostico,
-                Pacientes.nombre AS nombre_paciente,
-                Pacientes.apellido AS apellido_paciente,
-                Psicologos.nombre AS nombre_psicologo,
-                Psicologos.apellido AS apellido_psicologo,
-                Diagnosticos.fecha_diagnostico,
-                Diagnosticos.diagnostico
+                diagnosticos.id_diagnostico,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                diagnosticos.fecha_diagnostico,
+                diagnosticos.diagnostico
             FROM 
-                Diagnosticos
+                diagnosticos
             JOIN 
-                Pacientes ON Diagnosticos.id_paciente = Pacientes.id_paciente
+                pacientes ON diagnosticos.id_paciente = pacientes.id_paciente
             JOIN 
-                Psicologos ON Diagnosticos.id_psicologo = Psicologos.id_psicologo
+                psicologos ON diagnosticos.id_psicologo = psicologos.id_psicologo
             WHERE 
-                Diagnosticos.id_psicologo = ?
+                diagnosticos.id_psicologo = ?
         `, [userId]);
         rows.forEach((diagnostico) => {
             diagnostico.fecha_diagnostico = format(new Date (diagnostico.fecha_diagnostico), "dd/MM/yyyy");
@@ -39,21 +39,21 @@ export const getDiagnostico = async (req, res) => {
     try {
         const [rows] = await connection.query(`
             SELECT
-                Diagnosticos.id_diagnostico,
-                Pacientes.nombre AS nombre_paciente,
-                Pacientes.apellido AS apellido_paciente,
-                Psicologos.nombre AS nombre_psicologo,
-                Psicologos.apellido AS apellido_psicologo,
-                Diagnosticos.fecha_diagnostico,
-                Diagnosticos.diagnostico
+                diagnosticos.id_diagnostico,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                diagnosticos.fecha_diagnostico,
+                diagnosticos.diagnostico
             FROM 
-                Diagnosticos
+                diagnosticos
             JOIN 
-                Pacientes ON Diagnosticos.id_paciente = Pacientes.id_paciente
+                pacientes ON diagnosticos.id_paciente = pacientes.id_paciente
             JOIN 
-                Psicologos ON Diagnosticos.id_psicologo = Psicologos.id_psicologo
+                psicologos ON diagnosticos.id_psicologo = psicologos.id_psicologo
             WHERE 
-                Diagnosticos.id_diagnostico = ? AND Diagnosticos.id_psicologo = ?
+                diagnosticos.id_diagnostico = ? AND diagnosticos.id_psicologo = ?
         `, [id, userId]);
         if (rows.length === 0) {
             return res.status(404).json({ message: "Diagnostico no encontrado" });
@@ -71,7 +71,7 @@ export const createDiagnostico = async (req, res) => {
     const { id_paciente, fecha_diagnostico, diagnostico } = req.body;
     try {
         await connection.query(`
-            INSERT INTO Diagnosticos (id_paciente, id_psicologo, fecha_diagnostico, diagnostico)
+            INSERT INTO diagnosticos (id_paciente, id_psicologo, fecha_diagnostico, diagnostico)
             VALUES (?, ?, ?, ?)
         `, [id_paciente, userId, parse(fecha_diagnostico, "dd/MM/yyyy", new Date()), diagnostico]);
         res.status(201).json({ message: "Diagnostico creado" });
@@ -87,13 +87,13 @@ export const updateDiagnostico = async (req, res) => {
     const { fecha_diagnostico, diagnostico } = req.body;
     try {
         const [rows] = await connection.query(`
-            SELECT * FROM Diagnosticos WHERE id_diagnostico = ? AND id_psicologo = ?
+            SELECT * FROM diagnosticos WHERE id_diagnostico = ? AND id_psicologo = ?
         `, [id, userId]);
         if (rows.length === 0) {
             return res.status(404).json({ message: "Diagnostico no encontrado" });
         }
         await connection.query(`
-            UPDATE Diagnosticos SET fecha_diagnostico = ?, diagnostico = ? WHERE id_diagnostico = ?
+            UPDATE diagnosticos SET fecha_diagnostico = ?, diagnostico = ? WHERE id_diagnostico = ?
         `, [parse(fecha_diagnostico, "dd/MM/yyyy", new Date()), diagnostico, id]);
         res.status(200).json({ message: "Diagnostico actualizado" });
     } catch (error) {
@@ -107,13 +107,13 @@ export const deleteDiagnostico = async (req, res) => {
     const { id } = req.params;
     try {
         const [rows] = await connection.query(`
-            SELECT * FROM Diagnosticos WHERE id_diagnostico = ? AND id_psicologo = ?
+            SELECT * FROM diagnosticos WHERE id_diagnostico = ? AND id_psicologo = ?
         `, [id, userId]);
         if (rows.length === 0) {
             return res.status(404).json({ message: "Diagnostico no encontrado" });
         }
         await connection.query(`
-            DELETE FROM Diagnosticos WHERE id_diagnostico = ?
+            DELETE FROM diagnosticos WHERE id_diagnostico = ?
         `, [id]);
         res.status(200).json({ message: "Diagnostico eliminado" });
     } catch (error) {

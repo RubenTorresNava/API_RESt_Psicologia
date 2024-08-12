@@ -10,7 +10,7 @@ export const getPacientes =async (req, res) => {
             SELECT
                 *
             FROM 
-                Pacientes
+                pacientes
             WHERE 
                 id_psicologo = ?
         `, [userId]);
@@ -32,7 +32,7 @@ export const getPacienteById = async (req, res) => {
             SELECT
                 *
             FROM 
-                Pacientes
+                pacientes
             WHERE 
                 id_paciente = ?
         `, [id]);
@@ -56,7 +56,7 @@ export const createPaciente = async (req, res) => {
     const formateRegistro = format(parceDateRegistro, "yyyy-MM-dd");
     try {
         await connection.query(`
-            INSERT INTO Pacientes
+            INSERT INTO pacientes
                 (nombre, apellido, fecha_nacimiento, telefono, correo_electronico, direccion, usuario, contrasena, tarifa, nombre_emergencia, contacto_emergencia, estado_civil, ocupacion, fecha_registro, id_psicologo)
             VALUES
                 (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -77,7 +77,8 @@ export const updatePaciente = async (req, res) => {
     const formateRegistro = format(parceDateRegistro, "yyyy-MM-dd");
     try {
         await connection.query(`
-            UPDATE Pacientes
+            UPDATE 
+                pacientes
             SET
                 nombre = ?,
                 apellido = ?,
@@ -105,7 +106,7 @@ export const deletePaciente = async (req, res) => {
     const { id } = req.params;
     try {
         await connection.query(`
-            DELETE FROM Pacientes
+            DELETE FROM pacientes
             WHERE id_paciente = ?
         `, [id]);
         res.status(200).json({ message: "Paciente eliminado" });
@@ -123,7 +124,7 @@ export const loginPaciente = async (req, res) => {
 
     try {
         const [rows] = await connection.query(
-            'SELECT * FROM Pacientes WHERE usuario = ?',
+            'SELECT * FROM pacientes WHERE usuario = ?',
             [usuario]
         );
 

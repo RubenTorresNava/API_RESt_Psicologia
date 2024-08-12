@@ -5,7 +5,6 @@ import PsicologosRoutes from './routes/psicologos.routes.js';
 import CitasRoutes from './routes/citas.routes.js';
 import PacientesRoutes from './routes/pacientes.routes.js';
 import DiagnosticoRoutes from './routes/diagnosticos.routes.js';
-import TratamientosRoutes from './routes/tratamientos.routes.js';
 
 const app = express();
 app.use(morgan('dev'));
@@ -23,6 +22,5 @@ app.use(PsicologosRoutes);
 app.use(CitasRoutes);
 app.use(PacientesRoutes);
 app.use(DiagnosticoRoutes);
-app.use(TratamientosRoutes);
 
 export default app;

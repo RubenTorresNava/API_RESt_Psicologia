@@ -7,24 +7,24 @@ export const getCitas = async (req, res) => {
     try {
         const [rows] = await connection.query(`
             SELECT
-                Citas.id_cita,
-                Pacientes.nombre AS nombre_paciente,
-                Pacientes.apellido AS apellido_paciente,
-                Pacientes.tarifa,  -- Agregamos la tarifa del paciente
-                Psicologos.nombre AS nombre_psicologo,
-                Psicologos.apellido AS apellido_psicologo,
-                Citas.fecha_cita,
-                Citas.hora_cita,
-                Citas.tipo_cita,
-                Citas.estado
+                citas.id_cita,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                pacientes.tarifa,  -- Agregamos la tarifa del paciente
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                citas.fecha_cita,
+                citas.hora_cita,
+                citas.tipo_cita,
+                citas.estado
             FROM 
-                Citas
+                citas
             JOIN 
-                Pacientes ON Citas.id_paciente = Pacientes.id_paciente
+                pacientes ON citas.id_paciente = pacientes.id_paciente
             JOIN 
                 Psicologos ON Citas.id_psicologo = Psicologos.id_psicologo
             WHERE 
-                Citas.id_psicologo = ?
+                citas.id_psicologo = ?
         `, [userId]);
 
         rows.forEach((cita) => {
@@ -45,24 +45,24 @@ export const getCitaById = async (req, res) => {
         const { id } = req.params;
         const [rows] = await connection.query(`
             SELECT
-                Citas.id_cita,
-                Pacientes.nombre AS nombre_paciente,
-                Pacientes.apellido AS apellido_paciente,
-                Pacientes.tarifa,
-                Psicologos.nombre AS nombre_psicologo,
-                Psicologos.apellido AS apellido_psicologo,
-                Citas.fecha_cita,
-                Citas.hora_cita,
-                Citas.tipo_cita,
-                Citas.estado
+                citas.id_cita,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                pacientes.tarifa,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                citas.fecha_cita,
+                citas.hora_cita,
+                citas.tipo_cita,
+                citas.estado
             FROM 
-                Citas
+                citas
             JOIN 
-                Pacientes ON Citas.id_paciente = Pacientes.id_paciente
+                pacientes ON citas.id_paciente = pacientes.id_paciente
             JOIN 
-                Psicologos ON Citas.id_psicologo = Psicologos.id_psicologo
+                psicologos ON citas.id_psicologo = psicologos.id_psicologo
             WHERE 
-                Citas.id_cita = ?
+                citas.id_cita = ?
         `, [id]);
         rows.forEach((cita) => {
             cita.fecha_cita = format(new Date (cita.fecha_cita), "dd/MM/yyyy");
@@ -90,7 +90,7 @@ export const createCita = async (req, res) => {
         const formattedHoraCita = format(parsedHoraCita, 'HH:mm:ss');
     
         const [rows] = await connection.query(`
-            INSERT INTO Citas (id_paciente, id_psicologo, fecha_cita, hora_cita, tipo_cita)
+            INSERT INTO citas (id_paciente, id_psicologo, fecha_cita, hora_cita, tipo_cita)
             VALUES (?, ?, ?, ?, ?)
         `, [id_paciente, userId, formattedFechaCita, formattedHoraCita, tipo_cita]);
     
@@ -115,7 +115,7 @@ export const updateCita = async (req, res) => {
         const formattedHoraCita = format(parsedHoraCita, 'HH:mm:ss');
     
         const [rows] = await connection.query(`
-            UPDATE Citas
+            UPDATE citas
             SET fecha_cita = ?, hora_cita = ?, tipo_cita = ?, estado = ?
             WHERE id_cita = ?
         `, [formattedFechaCita, formattedHoraCita, tipo_cita, estado, id]);
@@ -131,7 +131,7 @@ export const deleteCita = async (req, res) => {
     try {
         const { id } = req.params;
         const [rows] = await connection.query(`
-            DELETE FROM Citas
+            DELETE FROM citas
             WHERE id_cita = ?
         `, [id]);
     
