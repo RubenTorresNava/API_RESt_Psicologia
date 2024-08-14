@@ -11,5 +11,7 @@ router.put('/api/citas/:id', tokenMiddleware, citasController.updateCita);
 router.delete('/api/citas/:id', tokenMiddleware, citasController.deleteCita);
 router.put('/api/citas/confirmar/:id', tokenMiddleware, citasController.confirmCita);
 router.get('/api/citas/cita/paciente', tokenMiddleware, citasController.getCitasPacientes);
+router.get('/api/citas/cita/hoy', tokenMiddleware, citasController.getCitasHoy);
+router.get('/api/citas/fecha/:fecha', tokenMiddleware, citasController.getCitasPorFecha);
 
 export default router;

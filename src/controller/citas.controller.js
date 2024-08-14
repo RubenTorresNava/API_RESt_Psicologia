@@ -190,3 +190,79 @@ export const getCitasPacientes = async (req, res) => {
     }
 };
 
+//citas que tiene un psiocologo del dia de hoy
+export const getCitasHoy = async (req, res) => {
+    const userId = req.userId;
+    try {
+        const [rows] = await connection.query(`
+            SELECT
+                citas.id_cita,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                citas.fecha_cita,
+                citas.hora_cita,
+                citas.tipo_cita,
+                citas.estado
+            FROM 
+                citas
+            JOIN 
+                pacientes ON citas.id_paciente = pacientes.id_paciente
+            JOIN 
+                psicologos ON citas.id_psicologo = psicologos.id_psicologo
+            WHERE 
+                citas.id_psicologo = ? AND citas.fecha_cita = CURDATE()
+        `, [userId]);
+
+        rows.forEach((cita) => {
+            cita.fecha_cita = format(new Date(cita.fecha_cita), "dd/MM/yyyy");
+            cita.hora_cita = format(parse(cita.hora_cita, "HH:mm:ss", new Date()), "HH:mm");
+        });
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No hay citas para hoy" });
+        }
+
+        return res.status(200).json(rows);
+        
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+//filtrar citas por fecha
+export const getCitasPorFecha = async (req, res) => {
+    const userId = req.userId;
+    const { fecha } = req.params;
+    try {
+        const [rows] = await connection.query(`
+            SELECT
+                citas.id_cita,
+                pacientes.nombre AS nombre_paciente,
+                pacientes.apellido AS apellido_paciente,
+                psicologos.nombre AS nombre_psicologo,
+                psicologos.apellido AS apellido_psicologo,
+                citas.fecha_cita,
+                citas.hora_cita,
+                citas.tipo_cita,
+                citas.estado
+            FROM 
+                citas
+            JOIN 
+                pacientes ON citas.id_paciente = pacientes.id_paciente
+            JOIN 
+                psicologos ON citas.id_psicologo = psicologos.id_psicologo
+            WHERE 
+                citas.id_psicologo = ? AND citas.fecha_cita = ?
+        `, [userId, fecha]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ message: "No hay citas para esta fecha" });
+        }
+
+        return res.status(200).json(rows);
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
